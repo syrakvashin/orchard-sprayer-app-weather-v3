@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Калькулятор опрыскивателя</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="garden-bg"></div>
+  <div class="leaf leaf-1"></div>
+  <div class="leaf leaf-2"></div>
+  <div class="leaf leaf-3"></div>
+
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <h1>Калькулятор опрыскивателя</h1>
+        <p>Расчёт, погода, обработки и склад. Замеры форсунки и участки сада спрятаны в меню.</p>
+      </div>
+      <button id="menuButton" class="menu-button" aria-label="Меню">☰</button>
+    </header>
+
+    <nav class="main-tabs">
+      <button class="tab-btn active" data-tab="calc">Расчёт</button>
+      <button class="tab-btn" data-tab="weather">Погода</button>
+      <button class="tab-btn" data-tab="treatments">Обработки</button>
+      <button class="tab-btn" data-tab="stock">Склад</button>
+    </nav>
+
+    <aside id="sidePanel" class="side-panel">
+      <div class="side-panel-header">
+        <strong>Разделы</strong>
+        <button id="closeMenuButton" class="close-btn">✕</button>
+      </div>
+      <button class="side-link" data-panel="measurements">Замеры форсунки</button>
+      <button class="side-link" data-panel="blocks">Участки сада</button>
+    </aside>
+    <div id="overlay" class="overlay"></div>
+
+    <main>
+      <section id="tab-calc" class="tab-content active">
+        <div class="grid two">
+          <div class="card card-soft">
+            <h2>Ввод данных</h2>
+            <div class="subtabs">
+              <button class="subtab-btn active" data-mode="from-block">Из участка</button>
+              <button class="subtab-btn" data-mode="manual">Вручную</button>
+            </div>
+            <div class="form-grid">
+              <div class="field full" id="blockSelectWrap">
+                <label for="blockSelect">Участок</label>
+                <select id="blockSelect"></select>
+              </div>
+              <div class="field">
+                <label for="cultureInput">Культура</label>
+                <input id="cultureInput" type="text" />
+              </div>
+              <div class="field">
+                <label for="areaInput">Площадь, га</label>
+                <input id="areaInput" type="number" step="0.01" />
+              </div>
+              <div class="field">
+                <label for="normInput">Норма вылива, л/га</label>
+                <input id="normInput" type="number" step="1" value="400" />
+              </div>
+              <div class="field">
+                <label for="speedInput">Скорость, км/ч</label>
+                <input id="speedInput" type="number" step="0.1" value="8" />
+              </div>
+              <div class="field">
+                <label for="spacingInput">Междурядье, м</label>
+                <input id="spacingInput" type="number" step="0.1" value="4" />
+              </div>
+              <div class="field">
+                <label for="nozzlesInput">Форсунок, шт</label>
+                <input id="nozzlesInput" type="number" step="1" value="14" />
+              </div>
+              <div class="field">
+                <label for="tankInput">Бак, л</label>
+                <input id="tankInput" type="number" step="1" value="3000" />
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Результат</h2>
+            <div class="stats-grid">
+              <div class="stat stat-sage"><div class="muted">Культура</div><div id="resultCulture" class="stat-value">—</div></div>
+              <div class="stat stat-green"><div class="muted">Площадь</div><div id="resultArea" class="stat-value">—</div></div>
+              <div class="stat stat-wheat"><div class="muted">Нужно рабочей жидкости</div><div id="resultLiters" class="stat-value">—</div></div>
+              <div class="stat stat-plum"><div class="muted">Нужно баков</div><div id="resultTanks" class="stat-value">—</div></div>
+              <div class="stat stat-sky"><div class="muted">Общий расход</div><div id="resultTotalFlow" class="stat-value">—</div></div>
+              <div class="stat stat-rose"><div class="muted">На 1 форсунку</div><div id="resultFlowPerNozzle" class="stat-value">—</div></div>
+            </div>
+            <div class="pressure-box">
+              <div class="pressure-head"><div class="muted">Расчётное давление</div><span id="pressureStatus" class="badge">—</span></div>
+              <div id="resultPressure" class="pressure-value">—</div>
+              <div id="pressureLower" class="muted small"></div>
+              <div id="pressureUpper" class="muted small"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-weather" class="tab-content">
+        <div class="card card-sky">
+          <h2>Погода на 7 дней</h2>
+          <div class="form-grid">
+            <div class="field"><label for="weatherCity">Город</label><input id="weatherCity" type="text" placeholder="Например, Мосты" /></div>
+            <div class="field"><label for="weatherLat">Широта</label><input id="weatherLat" type="number" step="0.000001" value="53.414120" /></div>
+            <div class="field"><label for="weatherLon">Долгота</label><input id="weatherLon" type="number" step="0.000001" value="24.678197" /></div>
+            <div class="field actions"><button id="weatherLoadBtn" class="primary-btn">Обновить погоду</button></div>
+          </div>
+          <div class="weather-topline">
+            <a class="link-btn" href="https://map.airmq.by/#zoom=10&lat=53.47251789&lng=24.37316895&sidebar=info&selectedLocation=BY042010279" target="_blank" rel="noopener noreferrer">Открыть датчик AirMQ</a>
+            <div id="weatherPlace" class="muted"></div>
+          </div>
+          <div id="weatherStatus" class="muted"></div>
+          <div id="weatherCards" class="weather-cards"></div>
+        </div>
+
+        <div class="card card-lavender">
+          <div class="air-head">
+            <div>
+              <h2>AirMQ</h2>
+              <div id="airInfo" class="muted">Загрузка датчика…</div>
+            </div>
+            <button id="airReloadBtn" class="primary-btn">Обновить AirMQ</button>
+          </div>
+          <div id="airStatus" class="muted small"></div>
+          <div class="stats-grid">
+            <div class="stat stat-warm"><div class="muted">Температура</div><div id="airTemp" class="stat-value">—</div></div>
+            <div class="stat stat-cyan"><div class="muted">Влажность</div><div id="airHum" class="stat-value">—</div></div>
+            <div class="stat stat-sky"><div class="muted">PM1</div><div id="airPms1" class="stat-value">—</div></div>
+            <div class="stat stat-lime"><div class="muted">PM2.5</div><div id="airPms25" class="stat-value">—</div></div>
+            <div class="stat stat-peach"><div class="muted">PM10</div><div id="airPms10" class="stat-value">—</div></div>
+            <div class="stat stat-indigo"><div class="muted">Обновлено</div><div id="airTime" class="stat-value smaller">—</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-treatments" class="tab-content">
+        <div class="card">
+          <div class="stock-head">
+            <div>
+              <h2>Обработки</h2>
+              <div class="muted">Данные берутся из отдельного API обработок.</div>
+              <div id="treatmentsStatus" class="muted small"></div>
+            </div>
+            <div class="stock-controls">
+              <div class="field compact">
+                <label for="treatmentPlaceFilter">Участок</label>
+                <select id="treatmentPlaceFilter"></select>
+              </div>
+              <div class="field compact">
+                <label for="treatmentChemFilter">Химия</label>
+                <select id="treatmentChemFilter"></select>
+              </div>
+              <div class="field compact">
+                <label for="treatmentTypeFilter">Вид химии</label>
+                <select id="treatmentTypeFilter"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="last-treatment-box">
+            <h3>Последняя обработка по выбранному фильтру</h3>
+            <div id="lastTreatment" class="muted">Нет данных</div>
+          </div>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Участок</th>
+                <th>Химия</th>
+                <th>Вид</th>
+                <th>Количество</th>
+                <th>Бак</th>
+                <th>Метод</th>
+                <th>Скорость</th>
+                <th>Давление</th>
+                <th>Примечание</th>
+              </tr>
+            </thead>
+            <tbody id="treatmentsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-stock" class="tab-content">
+        <div class="card">
+          <div class="stock-head">
+            <div>
+              <h2>Склад</h2>
+              <div class="muted">Данные берутся из таблицы.</div>
+              <div id="stockStatus" class="muted small"></div>
+            </div>
+            <div class="stock-controls">
+              <div class="field compact">
+                <label for="stockTypeFilter">Вид химии</label>
+                <select id="stockTypeFilter"></select>
+              </div>
+              <div class="field compact">
+                <label for="stockSortBy">Сортировка</label>
+                <select id="stockSortBy">
+                  <option value="name">По названию</option>
+                  <option value="type">По виду химии</option>
+                  <option value="has_desc">По остатку ↓</option>
+                  <option value="has_asc">По остатку ↑</option>
+                  <option value="used_desc">По расходу ↓</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <table class="table">
+            <thead><tr><th>Название</th><th>Вид химии</th><th>Ед. изм.</th><th>Куплено</th><th>Израсходовано</th><th>Есть</th></tr></thead>
+            <tbody id="stockBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="panel-measurements" class="panel-content">
+        <div class="card">
+          <h2>Замеры форсунки</h2>
+          <div class="form-grid">
+            <div class="field"><label for="measurementPressure">Давление, бар</label><input id="measurementPressure" type="number" step="0.001" /></div>
+            <div class="field"><label for="measurementFlow">Вылив, л/мин</label><input id="measurementFlow" type="number" step="0.001" /></div>
+            <div class="field actions"><button id="saveMeasurementBtn" class="primary-btn">Сохранить замер</button></div>
+          </div>
+          <table class="table">
+            <thead><tr><th>Давление</th><th>Вылив</th><th></th></tr></thead>
+            <tbody id="measurementsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="panel-blocks" class="panel-content">
+        <div class="card">
+          <h2>Участки сада</h2>
+          <div class="form-grid">
+            <div class="field"><label for="blockName">Название участка</label><input id="blockName" type="text" /></div>
+            <div class="field"><label for="blockCulture">Культура</label><input id="blockCulture" type="text" /></div>
+            <div class="field"><label for="blockYear">Год</label><input id="blockYear" type="number" step="1" /></div>
+            <div class="field"><label for="blockRows">Рядов</label><input id="blockRows" type="number" step="1" /></div>
+            <div class="field"><label for="blockScheme">Схема посадки</label><input id="blockScheme" type="text" placeholder="4 × 1 м" /></div>
+            <div class="field"><label for="blockCount">Количество, шт</label><input id="blockCount" type="number" step="1" /></div>
+            <div class="field"><label for="blockArea">Площадь, га</label><input id="blockArea" type="number" step="0.01" /></div>
+            <div class="field actions"><button id="saveBlockBtn" class="primary-btn">Сохранить участок</button></div>
+          </div>
+          <div id="blockEditNotice" class="muted small"></div>
+          <table class="table">
+            <thead><tr><th>Участок</th><th>Культура</th><th>Год</th><th>Рядов</th><th>Схема</th><th>Кол-во</th><th>Площадь</th><th></th></tr></thead>
+            <tbody id="blocksBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
